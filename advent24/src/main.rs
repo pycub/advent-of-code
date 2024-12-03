@@ -9,6 +9,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("Challenge1 - solved");
 
     assert_eq!(334, ch2::part1()?);
+    assert_eq!(400, ch2::part2()?);
     println!("Challenge2 - solved");
 
     Ok(())
