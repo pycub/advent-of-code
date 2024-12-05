@@ -13,7 +13,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     assert_eq!(400, ch2::part2()?);
     println!("Challenge2 - solved");
 
-    println!("{:?}", ch3::part1()?);
+    assert_eq!(188192787, ch3::part1()?);
+    println!("{:?}", ch3::part2()?);
 
     Ok(())
 }
