@@ -7,14 +7,15 @@ use std::error::Error;
 fn main() -> Result<(), Box<dyn Error>> {
     assert_eq!(ch1::part1()?, 1830467);
     assert_eq!(ch1::part2()?, 26674158);
-    println!("Challenge1 - solved");
+    println!("Day3 - solved");
 
     assert_eq!(334, ch2::part1()?);
     assert_eq!(400, ch2::part2()?);
-    println!("Challenge2 - solved");
+    println!("Day2 - solved");
 
     assert_eq!(188192787, ch3::part1()?);
-    println!("{:?}", ch3::part2()?);
+    assert_eq!(113965544, ch3::part2()?);
+    println!("Day3 - solved");
 
     Ok(())
 }

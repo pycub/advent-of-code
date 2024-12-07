@@ -12,27 +12,24 @@ enum EventType {
     Mul(u32, u32),
 }
 
-fn seek_mul(window: &str, re: &Regex) -> Result<i32, Box<dyn Error>> {
-    let mut total = 0;
-
-    for captured in re.captures_iter(window) {
-        if let (Some(x), Some(y)) = (captured.get(1), captured.get(2)) {
-            total += x.as_str().parse::<i32>()? * y.as_str().parse::<i32>()?;
-        }
-    }
-
-    Ok(total)
-}
-
-pub fn part1() -> Result<i32, Box<dyn Error>> {
+pub fn part1() -> Result<u32, Box<dyn Error>> {
     let file = File::open(INPUT_PATH)?;
     let reader = BufReader::new(file);
-    let re = Regex::new(r"mul\s*\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)")?;
-    let mut total: i32 = 0;
+    let mut total: u32 = 0;
 
     for line in reader.lines() {
         let line = line?;
-        total += seek_mul(&line, &re)?;
+
+        let events = find_events(&line);
+        for event in events {
+            match event.0 {
+                EventType::Do => {}
+                EventType::Dont => {}
+                EventType::Mul(x, y) => {
+                    total += x * y;
+                }
+            }
+        }
     }
 
     Ok(total)
@@ -41,31 +38,41 @@ pub fn part1() -> Result<i32, Box<dyn Error>> {
 pub fn part2() -> Result<u32, Box<dyn Error>> {
     let file = File::open(INPUT_PATH)?;
     let reader = BufReader::new(file);
-    let mut sum: u32 = 0;
+    let re = Regex::new(r"mul\((\d*),(\d*)\)|don't\(\)|do\(\)")?;
+    let mut enabled = true;
+    let mut total: u32 = 0;
+    let mut instructions = vec![];
 
     for line in reader.lines() {
-        let line = line?;
+        for capture in re.captures_iter(&line?) {
+            let get_int = |idx: usize| capture.get(idx).map_or("i", |m| m.as_str()).parse();
+            let instr_raw = capture.get(0).map_or("", |m| m.as_str());
 
-        let events = find_events(&line);
-        let mut enabled = true;
-        for event in events {
-            match event.0 {
-                EventType::Do => {
-                    enabled = true;
-                }
-                EventType::Dont => {
-                    enabled = false;
-                }
-                EventType::Mul(x, y) => {
-                    if enabled {
-                        sum += x * y;
-                    }
+            if instr_raw.contains("mul") {
+                let left = get_int(1)?;
+                let right = get_int(2)?;
+                instructions.push(EventType::Mul(left, right));
+            } else if instr_raw.contains("don't") {
+                instructions.push(EventType::Dont);
+            } else if instr_raw.contains("do") {
+                instructions.push(EventType::Do);
+            }
+        }
+    }
+
+    for instr in &instructions {
+        match instr {
+            EventType::Do => enabled = true,
+            EventType::Dont => enabled = false,
+            EventType::Mul(x, y) => {
+                if enabled {
+                    total += x * y
                 }
             }
         }
     }
 
-    Ok(sum)
+    Ok(total)
 }
 
 fn find_events(content: &str) -> Vec<(EventType, usize)> {
